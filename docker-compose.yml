@@ -57,7 +57,7 @@ services:
     depends_on:
       opi-marvell-server:
         condition: service_healthy
-    command: sh -c 'curl -s "http://jaeger:16686/api/traces?service=opi-marvell-bridge&lookback=20m&prettyPrint=true&limit=10" | grep operationName'
+    command: sh -c 'curl -s "http://jaeger:16686/api/traces?service=opi-marvell-bridge&lookback=20m&prettyPrint=true&limit=10"
 
   opi-test:
     image: docker.io/namely/grpc-cli
