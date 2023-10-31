@@ -19,6 +19,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     command: /opi-marvell-bridge -grpc_port=50051 -http_port=8082 -spdk_addr /var/tmp/spdk.sock -redis_addr=redis:6379
     healthcheck:
       test: grpcurl -plaintext localhost:50051 list || exit 1
@@ -57,6 +59,8 @@ services:
     depends_on:
       opi-marvell-server:
         condition: service_healthy
+      opi-gw-test:
+        condition: service_completed_successfully # to get at least one operation registered in jaeger
     command: sh -c 'curl -s "http://jaeger:16686/api/traces?service=opi-marvell-bridge&lookback=20m&prettyPrint=true&limit=10" | grep operationName'
 
   opi-test:
@@ -64,8 +68,10 @@ services:
     networks:
       - opi
     depends_on:
-      opi-marvell-server:
-        condition: service_healthy
+      opi-gw-test:
+        condition: service_completed_successfully
+      opi-jaeger-test:
+        condition: service_completed_successfully
     command: ls opi-marvell-server:50051 opi_api.storage.v1.FrontendNvmeService -l
 
   opi-client:
